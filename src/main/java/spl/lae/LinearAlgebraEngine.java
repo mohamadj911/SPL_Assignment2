@@ -14,7 +14,6 @@ public class LinearAlgebraEngine {
 
     public LinearAlgebraEngine(int numThreads) {
         // TODO: create executor with given thread count
-        //dddddd
     }
 
     public ComputationNode run(ComputationNode computationRoot) {
@@ -51,5 +50,4 @@ public class LinearAlgebraEngine {
         // TODO: return summary of worker activity
         return null;
     }
-//dddddd
 }
