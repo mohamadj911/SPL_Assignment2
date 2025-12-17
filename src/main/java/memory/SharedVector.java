@@ -10,57 +10,115 @@ public class SharedVector {
 
     public SharedVector(double[] vector, VectorOrientation orientation) {
         // TODO: store vector data and its orientation
+        // Added by us 
+        this.vector = vector;
+        this.orientation = orientation;
+        // Adding end
     }
 
     public double get(int index) {
         // TODO: return element at index (read-locked)
-        return 0;
+        // Added by us 
+        readLock();
+        try {
+            return vector[index];
+        } finally {
+            readUnlock();
+        }
+        // Adding end
     }
 
     public int length() {
         // TODO: return vector length
-        return 0;
+        // Added by us 
+        return vector.length;
+        // Adding end
     }
 
     public VectorOrientation getOrientation() {
         // TODO: return vector orientation
-        return null;
+        // Added by us 
+        return this.orientation;
+        // Adding end
     }
 
     public void writeLock() {
         // TODO: acquire write lock
+        // Added by us 
+        lock.writeLock().lock();
+        // Adding end
     }
 
     public void writeUnlock() {
         // TODO: release write lock
+        // Added by us 
+        lock.writeLock().unlock();
+        // Adding end
     }
 
     public void readLock() {
         // TODO: acquire read lock
+        // Added by us 
+        lock.readLock().lock();
+        // Adding end
     }
 
     public void readUnlock() {
         // TODO: release read lock
+        // Added by us  
+        lock.readLock().unlock();
+        // Adding end
     }
 
     public void transpose() {
         // TODO: transpose vector
+        // Added by us 
+        if (this.orientation == VectorOrientation.ROW_MAJOR) {
+            this.orientation = VectorOrientation.COLUMN_MAJOR;
+        } else {
+            this.orientation = VectorOrientation.ROW_MAJOR;
+        }
+        // Adding end
     }
 
     public void add(SharedVector other) {
         // TODO: add two vectors
+        // Added by us 
+        for (int i = 0; i < this.vector.length; i++) {
+            this.vector[i] += other.get(i);
+        }
+        // Adding end
     }
 
     public void negate() {
         // TODO: negate vector
+        // Added by us 
+        for (int i = 0; i < this.vector.length; i++) {
+            this.vector[i] = -this.vector[i];
+        }
+        // Adding end
     }
 
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
-        return 0;
+        // Added by us 
+        double sum = 0.0;
+        for (int i = 0; i < this.vector.length; i++) {
+            sum = sum + this.vector[i] * other.get(i);
+        }
+        // Adding end
+        return sum;
     }
 
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
+        // Added by us 
+        double[] result = new double[matrix.length()];
+        for (int i = 0; i < matrix.length(); i++) {
+            result[i] = this.dot(matrix.get(i));
+        }
+        this.vector = result;
+        this.orientation = VectorOrientation.ROW_MAJOR;
+        // Adding end
     }
 }
