@@ -101,7 +101,8 @@ public class SharedMatrix {
             return null;
         }
         else { 
-            return vectors[0].getOrientation();        }
+            return vectors[0].getOrientation();        
+        }
         // Adding end
     }
 

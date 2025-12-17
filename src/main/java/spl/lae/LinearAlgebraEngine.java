@@ -14,6 +14,7 @@ public class LinearAlgebraEngine {
 
     public LinearAlgebraEngine(int numThreads) {
         // TODO: create executor with given thread count
+        this.executor = new TiredExecutor(numThreads);
     }
 
     public ComputationNode run(ComputationNode computationRoot) {
@@ -24,7 +25,36 @@ public class LinearAlgebraEngine {
     public void loadAndCompute(ComputationNode node) {
         // TODO: load operand matrices
         // TODO: create compute tasks & submit tasks to executor
+    ComputationNodeType type = node.getNodeType();
+    List<ComputationNode> operands = node.getChildren();
+
+    // 1. Initial Load of M1
+    leftMatrix.loadRowMajor(operands.get(0).getMatrix());
+    List<Runnable> tasks;
+
+    // 2. Decide operation using if-else instead of switch
+    if (type == ComputationNodeType.ADD) {
+        rightMatrix.loadRowMajor(operands.get(1).getMatrix());
+        tasks = createAddTasks();
+    } 
+    else if (type == ComputationNodeType.MULTIPLY) {
+        rightMatrix.loadColumnMajor(operands.get(1).getMatrix());
+        tasks = createMultiplyTasks();
+    } 
+    else if (type == ComputationNodeType.NEGATE) {
+        tasks = createNegateTasks();
+    } 
+    else if (type == ComputationNodeType.TRANSPOSE) {
+        tasks = createTransposeTasks();
+    } 
+    else {
+        throw new IllegalArgumentException("Unknown operation type");
     }
+
+    // 3. Execution
+    executor.submitAll(tasks);
+    node.resolve(leftMatrix.readRowMajor()); 
+}
 
     public List<Runnable> createAddTasks() {
         // TODO: return tasks that perform row-wise addition

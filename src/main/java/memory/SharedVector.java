@@ -73,9 +73,11 @@ public class SharedVector {
     public void transpose() {
         // TODO: transpose vector
         // Added by us 
-        if (this.orientation == VectorOrientation.ROW_MAJOR) {
+        if (this.orientation == VectorOrientation.ROW_MAJOR) { 
+            // Switch to column-major
             this.orientation = VectorOrientation.COLUMN_MAJOR;
         } else {
+            // Switch to row-major
             this.orientation = VectorOrientation.ROW_MAJOR;
         }
         // Adding end
@@ -85,7 +87,8 @@ public class SharedVector {
         // TODO: add two vectors
         // Added by us 
         for (int i = 0; i < this.vector.length; i++) {
-            this.vector[i] += other.get(i);
+            // Element-wise addition
+            this.vector[i] = this.vector[i] + other.get(i);
         }
         // Adding end
     }
@@ -94,6 +97,7 @@ public class SharedVector {
         // TODO: negate vector
         // Added by us 
         for (int i = 0; i < this.vector.length; i++) {
+            // Element-wise negation
             this.vector[i] = -this.vector[i];
         }
         // Adding end
@@ -104,6 +108,7 @@ public class SharedVector {
         // Added by us 
         double sum = 0.0;
         for (int i = 0; i < this.vector.length; i++) {
+            // Element-wise multiplication and accumulation
             sum = sum + this.vector[i] * other.get(i);
         }
         // Adding end
@@ -115,6 +120,7 @@ public class SharedVector {
         // Added by us 
         double[] result = new double[matrix.length()];
         for (int i = 0; i < matrix.length(); i++) {
+            // Dot product of this vector with each column of the matrix
             result[i] = this.dot(matrix.get(i));
         }
         this.vector = result;

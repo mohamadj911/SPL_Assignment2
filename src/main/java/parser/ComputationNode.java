@@ -97,5 +97,23 @@ public class ComputationNode {
         return matrix;
     }
 
+    ///////////////////////////////////////////////////////////////////
+    /// Convenience methods for binary operations
+    ///////////////////////////////////////////////////////////////////
+    
+    public ComputationNode getLeft() {
+        if (children == null || children.isEmpty()) {
+            throw new IllegalStateException("No left child available.");
+        }
+        return children.get(0);
+    }
+
+    
+    public ComputationNode getRight() {
+        if (children == null || children.size() < 2) {
+            throw new IllegalStateException("No right child available.");
+        }
+        return children.get(1);
+    }
 
 }
