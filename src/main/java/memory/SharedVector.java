@@ -118,7 +118,6 @@ public class SharedVector {
             result[i] = this.dot(matrix.get(i));
         }
         this.vector = result;
-        this.orientation = VectorOrientation.ROW_MAJOR;
-        // Adding end
+        this.orientation = VectorOrientation.ROW_MAJOR;}
     }
-}
+        // Adding end
