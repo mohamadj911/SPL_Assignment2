@@ -120,4 +120,9 @@ public class SharedVector {
         this.vector = result;
         this.orientation = VectorOrientation.ROW_MAJOR;}
     }
+<<<<<<< HEAD
         // Adding end
+=======
+    //// 
+}
+>>>>>>> 64696542205922528bfefc03ff1a1d39b030b964
