@@ -109,15 +109,18 @@ public class SharedMatrix {
     private void acquireAllVectorReadLocks(SharedVector[] vecs) {
         // TODO: acquire read lock for each vector
         // Added by us
-
+        for (SharedVector v : vecs) {
+            v.readLock();
+        }
         // Adding end
     }
 
     private void releaseAllVectorReadLocks(SharedVector[] vecs) {
         // TODO: release read locks
         // Added by us
-        for (SharedVector v : vecs) 
-            { v.readLock(); }
+        for (SharedVector v : vecs) {
+            v.readUnlock();
+        }
         // Adding end
     }
 
@@ -133,8 +136,9 @@ public class SharedMatrix {
     private void releaseAllVectorWriteLocks(SharedVector[] vecs) {
         // TODO: release write locks
         // Added by us
-        for (SharedVector v : vecs) 
-            { v.readUnlock(); }
+        for (SharedVector v : vecs)  {
+            v.writeUnlock();
+        }
         // Adding end
     }
 }
