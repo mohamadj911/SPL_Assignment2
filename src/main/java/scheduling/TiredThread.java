@@ -113,11 +113,11 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                     continue;
                 }
 
-                // Check for shutdown signal
+                // REPLACEMENT LOGIC: Use if-else instead of break
                 if (task == POISON_PILL) {
-                    break;
-                }
-
+                    // Signal the loop to stop after this iteration
+                    alive.set(false); 
+                } else {
                 // Track Idle Time
                 long now = System.nanoTime();
                 // Update total idle time
@@ -143,6 +143,7 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                     // Reset idle start time
                     idleStartTime.set(System.nanoTime()); 
                 }
+              }
             }
         } finally {
             // Ensure worker is marked not busy on exit
