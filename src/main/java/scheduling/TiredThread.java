@@ -57,6 +57,24 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
      */
     public void newTask(Runnable task) {
        // TODO
+       // Added by us
+       // Check if worker is alive
+       if (!alive.get()) {
+            throw new IllegalStateException("Worker not alive");
+        }
+        
+        // Atomically reserve the worker
+        if (!busy.compareAndSet(false, true)) {
+            throw new IllegalStateException("Worker already busy.");
+        }
+
+        // Place task in the handoff slot
+        if (!handoff.offer(task)) {
+            // Revert reservation if queue is full
+            busy.set(false); 
+            throw new IllegalStateException("Handoff queue rejected task.");
+        }
+         // Adding end
     }
 
     /**
@@ -65,16 +83,92 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
      */
     public void shutdown() {
        // TODO
+       // Added by us
+       // Signal the worker to stop
+       alive.set(false);
+        // Ensure the thread isn't stuck waiting for a task
+        handoff.offer(POISON_PILL);
+        // Interrupt in case it's blocked on take()
+        this.interrupt();
+        // Adding end
     }
 
     @Override
     public void run() {
        // TODO
+       // Added by us
+       // Main worker loop
+       try {
+            // Continue while alive
+            while (alive.get()) {
+                // Wait for a task
+                Runnable task;
+                try {
+                    // Block until a task is offered
+                    task = handoff.take();
+                    // If interrupted, check alive status
+                } catch (InterruptedException e) {
+                    // if not, skip to next iteration
+                    if (!alive.get()) break;
+                    continue;
+                }
+
+                // Check for shutdown signal
+                if (task == POISON_PILL) {
+                    break;
+                }
+
+                // Track Idle Time
+                long now = System.nanoTime();
+                // Update total idle time
+                timeIdle.addAndGet(now - idleStartTime.get());
+
+                // Execute Task
+                busy.set(true);
+                // Measure execution time
+                long start = System.nanoTime();
+                try {
+                    // Run the assigned task
+                    task.run();
+                } catch (Throwable t) {
+                    // Log but don't kill the worker
+                    t.printStackTrace(); 
+                } finally {
+                    // Track Work Time
+                    long elapsed = System.nanoTime() - start;
+                    // Update total time used
+                    timeUsed.addAndGet(elapsed);
+                    // Mark worker as idle
+                    busy.set(false);
+                    // Reset idle start time
+                    idleStartTime.set(System.nanoTime()); 
+                }
+            }
+        } finally {
+            // Ensure worker is marked not busy on exit
+            alive.set(false);
+            // Mark as not busy
+            busy.set(false);
+        }
+         // Adding end
     }
 
     @Override
     public int compareTo(TiredThread o) {
         // TODO
-        return 0;
+        // Added by us
+        // Calculate and compare fatigue (Fatigue Factor * Time Used)
+        double myFatigue = this.getFatigue();
+        double otherFatigue = o.getFatigue();
+
+        int cmp = Double.compare(myFatigue, otherFatigue);
+        
+        // If fatigue is exactly equal, cheack the ID
+        if (cmp != 0) {
+            return cmp;
+        }
+    // If fatigue is equal, compare by ID to ensure consistent ordering
+    return Integer.compare(this.id, o.id);
+
     }
 }
