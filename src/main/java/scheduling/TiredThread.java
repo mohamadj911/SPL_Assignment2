@@ -109,7 +109,9 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                     // If interrupted, check alive status
                 } catch (InterruptedException e) {
                     // if not, skip to next iteration
-                    if (!alive.get()) break;
+                    if (!alive.get()) {
+                        break;
+                    }
                     continue;
                 }
 
@@ -123,8 +125,8 @@ public class TiredThread extends Thread implements Comparable<TiredThread> {
                 // Update total idle time
                 timeIdle.addAndGet(now - idleStartTime.get());
 
-                // Execute Task
-                busy.set(true);
+                // // Execute Task
+                // busy.set(true);
                 // Measure execution time
                 long start = System.nanoTime();
                 try {
