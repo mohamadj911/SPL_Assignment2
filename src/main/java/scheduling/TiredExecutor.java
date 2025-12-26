@@ -4,16 +4,21 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TiredExecutor {
 
     private final TiredThread[] workers;
     private final PriorityBlockingQueue<TiredThread> idleMinHeap = new PriorityBlockingQueue<>();
     private final AtomicInteger inFlight = new AtomicInteger(0);
+    // Collect exceptions thrown by worker tasks
+    private final ConcurrentLinkedQueue<Throwable> taskExceptions = new ConcurrentLinkedQueue<>();
 
     public TiredExecutor(int numThreads) {
-        // TODO
-        // Added by us
+        // Validate thread count
+        if (numThreads < 1) {
+            throw new IllegalArgumentException("numThreads must be >= 1");
+        }
         // Create workers with random fatigue factors between 0.5 and 1.5
         workers = new TiredThread[numThreads];
         // Initialize and start workers
@@ -28,7 +33,6 @@ public class TiredExecutor {
             // Start worker thread
             worker.start();
         }
-        // Adding end
     }
 
     public void submit(Runnable task) {
@@ -41,32 +45,50 @@ public class TiredExecutor {
 
         // Take least fatigued idle worker
         try {
-            TiredThread worker = idleMinHeap.take();
-            // Increment in-flight count
-            inFlight.incrementAndGet();
-            // Wrap task to reinsert worker into idle heap upon completion
-            Runnable wrapped = () -> {
-                // Execute original task
-                try {
-                    // Run the actual task
-                    task.run();
-                // Finished successfully
-                } finally {
-                    // Reinsert worker into idle heap
-                    idleMinHeap.add(worker);
-                    // Decrement in-flight count and notify if zero
-                    int left = inFlight.decrementAndGet();
-                    if (left == 0) {
-                        // Notify waiting threads
-                        synchronized (this) {
-                            // Notify all waiting threads
-                            this.notifyAll();
+            while (true) {
+                TiredThread worker = idleMinHeap.take();
+
+                // Wrap task to reinsert worker into idle heap upon completion
+                Runnable wrapped = () -> {
+                    // Execute original task
+                    try {
+                        // Run the actual task
+                        task.run();
+                    } catch (Throwable t) {
+                        // Capture any task exception for later reporting
+                        taskExceptions.add(t);
+                        throw t;
+                    } finally {
+                        // Reinsert worker into idle heap
+                        idleMinHeap.add(worker);
+                        // Decrement in-flight count and notify if zero
+                        int left = inFlight.decrementAndGet();
+                        if (left == 0) {
+                            // Notify waiting threads
+                            synchronized (this) {
+                                // Notify all waiting threads
+                                this.notifyAll();
+                            }
                         }
                     }
+                };
+
+                // Try to assign the task; if worker cannot accept it, try next worker
+                try {
+                    worker.newTask(wrapped);
+                    // Only increment in-flight after successful assignment
+                    inFlight.incrementAndGet();
+                    break; // assigned successfully
+                } catch (IllegalStateException ise) {
+                    // Worker could not accept the task right now; put it back if alive and try another
+                    if (worker.isAlive()) {
+                        idleMinHeap.add(worker);
+                    }
+                    // small busy-wait backoff to avoid tight loop
+                    Thread.yield();
+                    continue;
                 }
-            };
-            // Assign wrapped task to worker
-            worker.newTask(wrapped);
+            }
         // Handle interruption
         } catch (InterruptedException e) {
             // Restore interrupt status
@@ -99,6 +121,12 @@ public class TiredExecutor {
                     break;
                 }
             }
+        }
+
+        // If any task threw an exception, surface it to the caller
+        if (!taskExceptions.isEmpty()) {
+            Throwable first = taskExceptions.peek();
+            throw new RuntimeException("One or more tasks failed during execution", first);
         }
         // Adding end
     }

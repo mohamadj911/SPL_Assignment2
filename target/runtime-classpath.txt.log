@@ -1,0 +1,29 @@
+﻿mvn.cmd : WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
+At C:\Users\jmalm\Downloads\Skeleton folder\ExamplesCheckOutputGenerator.ps1:15 char:1
++ & mvn "-DincludeScope=runtime" "dependency:build-classpath" "-Dmdep.o ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A term...has been called:String) [],  
+   RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: sun.misc.Unsafe::staticFieldBase has been called by 
+com.google.inject.internal.aop.HiddenClassDefiner 
+(file:/C:/Program%20Files/apache-maven-3.9.11/lib/guice-5.1.0-classes.jar)
+WARNING: Please consider reporting this to the maintainers of class 
+com.google.inject.internal.aop.HiddenClassDefiner
+WARNING: sun.misc.Unsafe::staticFieldBase will be removed in a future release
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -------------------------< org.example:SPLA2 >--------------------------
+[INFO] Building SPLA2 1.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- dependency:3.7.0:build-classpath (default-cli) @ SPLA2 ---
+[INFO] Wrote classpath file 'C:\Users\jmalm\Downloads\Skeleton folder\target\runtime-classpath.txt'.
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  2.490 s
+[INFO] Finished at: 2025-12-26T20:17:10+02:00
+[INFO] ------------------------------------------------------------------------

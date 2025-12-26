@@ -6,6 +6,7 @@ memory\VectorOrientation.class
 parser\ComputationNode.class
 parser\InputParser.class
 scheduling\TiredExecutor.class
+spl\lae\LinearAlgebraEngine$1.class
 parser\ComputationNodeType.class
 parser\OutputWriter$ResultMatrix.class
 memory\SharedMatrix.class

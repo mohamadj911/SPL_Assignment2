@@ -39,7 +39,15 @@ public class LinearAlgebraEngine {
         // Loop to find and resolve resolvable nodes
         while ((resolvable = computationRoot.findResolvable()) != null) {
             loadAndCompute(resolvable);
-    }
+        }
+
+        // All work submitted and completed — shutdown the executor so worker threads exit
+        try {
+            executor.shutdown();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
         return computationRoot;
         // Adding end
     }   

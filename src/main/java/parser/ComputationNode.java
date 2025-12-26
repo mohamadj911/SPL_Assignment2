@@ -11,6 +11,19 @@ public class ComputationNode {
     public ComputationNode(String operatorStr, List<ComputationNode> children) throws IllegalArgumentException {
         this.nodeType = mapOperator(operatorStr);
         this.children = children;
+        validateArity(this.nodeType, this.children);
+    }
+
+    private void validateArity(ComputationNodeType type, List<ComputationNode> children) {
+        if (type == ComputationNodeType.ADD || type == ComputationNodeType.MULTIPLY) {
+            if (children == null || children.size() < 2) {
+                throw new IllegalArgumentException("Operator '" + type + "' requires at least 2 operands");
+            }
+        } else if (type == ComputationNodeType.NEGATE || type == ComputationNodeType.TRANSPOSE) {
+            if (children == null || children.size() != 1) {
+                throw new IllegalArgumentException("Operator '" + type + "' requires exactly 1 operand");
+            }
+        }
     }
 
     private ComputationNodeType mapOperator(String operatorStr) throws IllegalArgumentException {

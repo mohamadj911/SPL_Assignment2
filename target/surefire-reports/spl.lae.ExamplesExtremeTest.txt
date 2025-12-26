@@ -1,0 +1,82 @@
+-------------------------------------------------------------------------------
+Test set: spl.lae.ExamplesExtremeTest
+-------------------------------------------------------------------------------
+Tests run: 6, Failures: 6, Errors: 0, Skipped: 0, Time elapsed: 0.266 s <<< FAILURE! -- in spl.lae.ExamplesExtremeTest
+spl.lae.ExamplesExtremeTest.inconsistentRowProducesError -- Time elapsed: 0.004 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/inconsistent_row.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.inconsistentRowProducesError(ExamplesExtremeTest.java:53)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+spl.lae.ExamplesExtremeTest.dimMismatchProducesError -- Time elapsed: 0.004 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/dim_mismatch.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.dimMismatchProducesError(ExamplesExtremeTest.java:59)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+spl.lae.ExamplesExtremeTest.complexNestedProducesExpected -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/complex_nested.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.complexNestedProducesExpected(ExamplesExtremeTest.java:65)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+spl.lae.ExamplesExtremeTest.manyThreadsExampleRuns -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/many_threads.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.manyThreadsExampleRuns(ExamplesExtremeTest.java:83)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+spl.lae.ExamplesExtremeTest.invalidOperatorProducesError -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/invalid_operator.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.invalidOperatorProducesError(ExamplesExtremeTest.java:47)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+
+spl.lae.ExamplesExtremeTest.largeIdentityMultProducesExpectedWithManyThreads -- Time elapsed: 0.002 s <<< FAILURE!
+org.opentest4j.AssertionFailedError: resource not found: examples/large_identity_mult.json ==> expected: not <null>
+	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:152)
+	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)
+	at org.junit.jupiter.api.AssertNotNull.failNull(AssertNotNull.java:49)
+	at org.junit.jupiter.api.AssertNotNull.assertNotNull(AssertNotNull.java:35)
+	at org.junit.jupiter.api.Assertions.assertNotNull(Assertions.java:308)
+	at spl.lae.ExamplesExtremeTest.runExampleResource(ExamplesExtremeTest.java:25)
+	at spl.lae.ExamplesExtremeTest.largeIdentityMultProducesExpectedWithManyThreads(ExamplesExtremeTest.java:74)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1604)
+

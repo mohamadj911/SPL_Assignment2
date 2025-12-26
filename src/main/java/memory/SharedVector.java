@@ -106,10 +106,14 @@ public class SharedVector {
     public double dot(SharedVector other) {
         // TODO: compute dot product (row · column)
         // Added by us 
+        // Defensive check for mismatched lengths
+        if (this.length() != other.length()) {
+            throw new IllegalArgumentException("Vector length mismatch: " + this.length() + " vs " + other.length());
+        }
         double sum = 0.0;
         for (int i = 0; i < this.vector.length; i++) {
             // Element-wise multiplication and accumulation
-            sum = sum + this.vector[i] * other.get(i);
+            sum += this.vector[i] * other.get(i);
         }
         // Adding end
         return sum;
@@ -118,10 +122,23 @@ public class SharedVector {
     public void vecMatMul(SharedMatrix matrix) {
         // TODO: compute row-vector × matrix
         // Added by us 
+        // Defensive checks to avoid ArrayIndexOutOfBounds and provide clearer errors
+        if (matrix.length() == 0) {
+            this.vector = new double[0];
+            this.orientation = VectorOrientation.ROW_MAJOR;
+            return;
+        }
+        if (matrix.get(0).length() != this.length()) {
+            throw new IllegalArgumentException("Vector length " + this.length() + " does not match matrix column length " + matrix.get(0).length());
+        }
         double[] result = new double[matrix.length()];
         for (int i = 0; i < matrix.length(); i++) {
+            SharedVector column = matrix.get(i);
+            if (column.length() != this.length()) {
+                throw new IllegalArgumentException("Matrix column " + i + " length " + column.length() + " does not match vector length " + this.length());
+            }
             // Dot product of this vector with each column of the matrix
-            result[i] = this.dot(matrix.get(i));
+            result[i] = this.dot(column);
         }
         this.vector = result;
         this.orientation = VectorOrientation.ROW_MAJOR;
