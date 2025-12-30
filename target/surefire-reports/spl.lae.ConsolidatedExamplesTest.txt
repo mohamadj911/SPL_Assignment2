@@ -1,4 +1,8 @@
 -------------------------------------------------------------------------------
 Test set: spl.lae.ConsolidatedExamplesTest
 -------------------------------------------------------------------------------
+<<<<<<< HEAD
 Tests run: 28, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.964 s -- in spl.lae.ConsolidatedExamplesTest
+=======
+Tests run: 11, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.737 s -- in spl.lae.ConsolidatedExamplesTest
+>>>>>>> a78c8b23a006b1f79a2f410afe72d1acfa2b8cb7
