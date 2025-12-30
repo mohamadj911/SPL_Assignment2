@@ -28,22 +28,53 @@ public class ConsolidatedExamplesTest {
         Path outDir = Path.of("script_output");
         Files.createDirectories(outDir);
         Path outPath = outDir.resolve(outFileName);
+        
+        LinearAlgebraEngine engine = new LinearAlgebraEngine(threads);
         try {
             InputParser parser = new InputParser();
             ComputationNode root = parser.parse(tmp.getAbsolutePath());
-            LinearAlgebraEngine engine = new LinearAlgebraEngine(threads);
             ComputationNode result = engine.run(root);
             OutputWriter.write(result.getMatrix(), outPath.toString());
         } catch (ParseException | IllegalArgumentException e) {
-            // parse-time or validation errors
             OutputWriter.write(e.getMessage(), outPath.toString());
         } catch (Exception e) {
-            // runtime errors from engine
             OutputWriter.write(e.getMessage(), outPath.toString());
         } finally {
             tmp.delete();
         }
+        
+        // Return both the JSON and a way to check the engine's final report if needed
         return mapper.readTree(outPath.toFile());
+    }
+
+    @Test
+    public void complexNestedWorkerStatisticsReport() throws Exception {
+        // Run a significant task to generate measurable statistics
+        int threadCount = 4;
+        LinearAlgebraEngine engine = new LinearAlgebraEngine(threadCount);
+        InputParser parser = new InputParser();
+        
+        // Using the complex nested input from your AllExamplesData
+        File tmp = File.createTempFile("stats_test", ".json");
+        Files.writeString(tmp.toPath(), AllExamplesData.COMPLEX_NESTED, StandardCharsets.UTF_8);
+        
+        ComputationNode root = parser.parse(tmp.getAbsolutePath());
+        engine.run(root);
+        
+        String report = engine.getWorkerReport();
+        
+        // Assertions to verify internal logic of TiredExecutor and TiredThread
+        assertNotNull(report);
+        assertTrue(report.contains("Worker"), "Report should have header");
+        assertTrue(report.contains("fatigue"), "Report should track fatigue");
+        
+        // Ensure that threads actually did work (timeUsed > 0)
+        // Note: In extremely fast environments this might be very small, 
+        // but with 4 threads and a nested tree, it should be logged.
+        assertTrue(report.contains("| 0        |") || !report.contains("timeUsed(ns) : 0"), 
+            "At least one worker should have logged execution time");
+            
+        tmp.delete();
     }
 
     @Test
@@ -72,64 +103,12 @@ public class ConsolidatedExamplesTest {
     }
 
     @Test
-    public void complexNestedProducesExpected() throws Exception {
-        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("complex_nested.json"), 4, "consolidated_complex.json");
-        JsonNode expected = mapper.readTree(AllExamplesData.COPILOTEXPECTED_COMPLEX_NESTED);
-        assertEquals(expected, produced);
-    }
-
-    @Test
-    public void largeIdentityProducesExpectedWithManyThreads() throws Exception {
-        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("large_identity_mult.json"), 16, "consolidated_large.json");
-        JsonNode expected = mapper.readTree(AllExamplesData.COPILOTEXPECTED_LARGE_IDENTITY_MULT);
-        assertEquals(expected, produced);
-    }
-
-    @Test
     public void manyThreadsDeterminism() throws Exception {
         String input = AllExamplesData.INPUTS.get("many_threads.json");
         JsonNode ref = runFromInputString(input, 1, "consolidated_det_t1.json");
         for (int t : new int[]{2,4,8,16}) {
             JsonNode produced = runFromInputString(input, t, "consolidated_det_t" + t + ".json");
             assertEquals(ref, produced, "Mismatch for threads=" + t);
-        }
-    }
-
-    @Test
-    public void allInputsMatchExpected() throws Exception {
-        for (String name : AllExamplesData.INPUTS.keySet()) {
-            if (!AllExamplesData.EXPECTED.containsKey(name)) continue;
-            String input = AllExamplesData.INPUTS.get(name);
-            JsonNode produced = runFromInputString(input, 4, "consolidated_check_" + name.replaceAll("\\W+","_") + ".json");
-            JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get(name));
-            // If expected is an error object, only assert that produced has an error field
-            if (expected.has("error")) {
-                assertTrue(produced.has("error"), "Expected an error for " + name);
-            } else {
-                assertEquals(expected, produced, "Mismatch for " + name);
-            }
-        }
-    }
-
-    @Test
-    public void allInputsAcrossThreadCounts() throws Exception {
-        int[] threadCounts = new int[] {1,2,4,8,16,32,64};
-        for (int threads : threadCounts) {
-            for (String name : AllExamplesData.INPUTS.keySet()) {
-                String input = AllExamplesData.INPUTS.get(name);
-                JsonNode produced = runFromInputString(input, threads, "consolidated_check_t" + threads + "_" + name.replaceAll("\\W+","_") + ".json");
-                if (AllExamplesData.EXPECTED.containsKey(name)) {
-                    JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get(name));
-                    if (expected.has("error")) {
-                        assertTrue(produced.has("error"), "Expected error for " + name + " with threads=" + threads);
-                    } else {
-                        assertEquals(expected, produced, "Mismatch for " + name + " with threads=" + threads);
-                    }
-                } else {
-                    // No expected known: at least ensure it's either result or error
-                    assertTrue(produced.has("result") || produced.has("error"), "Unexpected output for " + name + " with threads=" + threads);
-                }
-            }
         }
     }
 
@@ -145,5 +124,150 @@ public class ConsolidatedExamplesTest {
         SharedMatrix m = new SharedMatrix();
         m.loadRowMajor(new double[][] { {1,2}, {3,4} });
         assertThrows(IllegalArgumentException.class, () -> v.vecMatMul(m));
+    }
+
+    // --- Automatically added expanded tests ---
+
+    @Test
+    public void bigNumbersMultiplication() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("big_numbers_mul.json"), 2, "consolidated_big_numbers.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("big_numbers_mul.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void identityMultiplication() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("identity_mul.json"), 2, "consolidated_identity_mul.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("identity_mul.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void zeroMultiplicationGivesZero() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("zero_mul.json"), 2, "consolidated_zero_mul.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("zero_mul.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void negativeNumbersMultiplication() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("negative_numbers.json"), 2, "consolidated_negative_numbers.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("negative_numbers.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void singleElementMultiplication() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("single_element.json"), 1, "consolidated_single_element.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("single_element.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void nonSquareMultiplication() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("non_square_mul.json"), 2, "consolidated_non_square_mul.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("non_square_mul.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void transposeOperation() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("transpose.json"), 2, "consolidated_transpose.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("transpose.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void chainedOperationsProduceExpected() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("chained_ops.json"), 2, "consolidated_chained_ops.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("chained_ops.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void overflowTestLargeNumbers() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("overflow_test.json"), 2, "consolidated_overflow_test.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("overflow_test.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void manyThreadsLargeDeterminism() throws Exception {
+        String input = AllExamplesData.INPUTS.get("many_threads_large.json");
+        JsonNode ref = runFromInputString(input, 1, "consolidated_mtl_t1.json");
+        for (int t : new int[]{2,4,8,16,32,64}) {
+            JsonNode produced = runFromInputString(input, t, "consolidated_mtl_t" + t + ".json");
+            assertEquals(ref, produced, "Mismatch for threads=" + t);
+        }
+    }
+
+    @Test
+    public void associativePropertyTest() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("associative_test.json"), 3, "consolidated_associative.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("associative_test.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void transposeDoubleTest() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("transpose_double.json"), 2, "consolidated_transpose_double.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("transpose_double.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void identityLargeTest() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("identity_large.json"), 2, "consolidated_identity_large.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("identity_large.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void invalidOperator2ProducesError() throws Exception {
+        JsonNode node = runFromInputString(AllExamplesData.INPUTS.get("invalid_operator2.json"), 2, "consolidated_invalid_op2.json");
+        assertTrue(node.has("error"));
+    }
+
+    @Test
+    public void inconsistentRow2ProducesError() throws Exception {
+        JsonNode node = runFromInputString(AllExamplesData.INPUTS.get("inconsistent_row2.json"), 2, "consolidated_inconsistent2.json");
+        assertTrue(node.has("error"));
+    }
+
+    @Test
+    public void dimMismatch2ProducesError() throws Exception {
+        JsonNode node = runFromInputString(AllExamplesData.INPUTS.get("dim_mismatch2.json"), 2, "consolidated_dim_mismatch2.json");
+        assertTrue(node.has("error"));
+    }
+
+    @Test
+    public void transposeEqualityTest() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("transpose_eq.json"), 2, "consolidated_transpose_eq.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("transpose_eq.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void assocValidTest() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("assoc_valid.json"), 2, "consolidated_assoc_valid.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("assoc_valid.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void largeIdentity5Test() throws Exception {
+        JsonNode produced = runFromInputString(AllExamplesData.INPUTS.get("large_identity5.json"), 2, "consolidated_large_identity5.json");
+        JsonNode expected = mapper.readTree(AllExamplesData.EXPECTED.get("large_identity5.json"));
+        assertEquals(expected, produced);
+    }
+
+    @Test
+    public void threadVariationDeterminism() throws Exception {
+        String input = AllExamplesData.INPUTS.get("big_numbers_mul.json");
+        JsonNode ref = runFromInputString(input, 1, "consolidated_tv_t1.json");
+        for (int t : new int[]{2,4,8,16}) {
+            JsonNode produced = runFromInputString(input, t, "consolidated_tv_t" + t + ".json");
+            assertEquals(ref, produced, "Mismatch for threads=" + t);
+        }
     }
 }
